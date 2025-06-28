@@ -12,6 +12,9 @@ export default {
   nitro: {
     compatibility: {
       date: '2024-04-03'
-    }
+    },
+  },
+  typescript: {
+    strict: true
   }
 }

@@ -1,6 +1,6 @@
 <template>
   <nav class="bg-gray-900 shadow-md p-4 flex justify-between items-center">
-    <h1 class="text-xl font-bold text-[#00FFC3]">Assistant Trading IA</h1>
+    <h1 class="text-xl font-bold text-[#ff0000]">Assistant Trading IA</h1>
     <ul class="flex space-x-6">
       <li>
         <NuxtLink

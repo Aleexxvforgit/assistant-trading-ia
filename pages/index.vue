@@ -52,6 +52,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { $fetch } from 'ofetch'
 
 const trade = ref({ asset: '', entry: '', exit: '', result: '', strategy: '', comment: '' })
 const result = ref('')
