@@ -3,7 +3,7 @@
   "compilerOptions": {
     "moduleResolution": "node",
     "strict": true,
-    "types": ["vue", "@types/node"],
+    "types": ["vue", "@types/node @nuxt/types"],
     "baseUrl": ".",
     "paths": {
       "~/*": ["./*"],

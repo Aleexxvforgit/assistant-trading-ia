@@ -1,71 +1,84 @@
 <template>
-  <div class="min-h-screen bg-[#0F1117] text-white p-6 max-w-4xl mx-auto space-y-10">
-    <h1 class="text-4xl font-bold text-[#00FFC3]"> Analyse de Trade</h1>
+  <div class="min-h-screen bg-white text-black dark:bg-gray-900 dark:text-white transition-colors duration-300">
+    <!-- Contenu principal -->
+    <main class="flex flex-col items-center justify-center min-h-screen px-4 py-12">
+      <h1 class="text-4xl font-bold mb-6 text-center">
+        Assistant IA de Trading 📊
+      </h1>
 
-    <form @submit.prevent="submitTrade" class="space-y-4">
-      <input v-model="trade.asset" type="text" placeholder="Actif (ex: EUR/USD)" class="w-full p-3 bg-gray-800 rounded-md placeholder-gray-400 text-white" />
-      <input v-model="trade.entry" type="text" placeholder="Prix d'entrée" class="w-full p-3 bg-gray-800 rounded-md placeholder-gray-400 text-white" />
-      <input v-model="trade.exit" type="text" placeholder="Prix de sortie" class="w-full p-3 bg-gray-800 rounded-md placeholder-gray-400 text-white" />
-      <input v-model="trade.result" type="text" placeholder="Résultat (ex: +50 pips)" class="w-full p-3 bg-gray-800 rounded-md placeholder-gray-400 text-white" />
-      <input v-model="trade.strategy" type="text" placeholder="Stratégie utilisée" class="w-full p-3 bg-gray-800 rounded-md placeholder-gray-400 text-white" />
-      <textarea v-model="trade.comment" placeholder="Commentaire" class="w-full p-3 bg-gray-800 rounded-md placeholder-gray-400 text-white"></textarea>
-      <button type="submit" class="bg-[#00FFC3] text-black px-6 py-3 rounded-md font-semibold hover:bg-opacity-80 transition">⚡ Analyser le trade</button>
-    </form>
-
-    <div v-if="isLoading" class="flex items-center gap-3 text-[#00FFC3]">
-      <span class="loader animate-spin border-t-2 border-[#00FFC3] border-solid rounded-full h-5 w-5"></span>
-      <span>Analyse en cours...</span>
-    </div>
-
-    <div v-if="pendingTrade" class="bg-gray-900 p-4 rounded-md border border-gray-700">
-      <h2 class="text-xl text-[#00FFC3] font-semibold mb-2">🕐 Analyse en attente...</h2>
-      <p class="text-sm text-gray-300"> L'analyse sera affichée ici une fois l'appel API terminé.</p>
-    </div>
-
-    <div v-if="result" class="bg-gray-900 p-6 rounded-md border border-gray-700 space-y-6">
-      <h2 class="text-2xl font-semibold text-[#00FFC3] mb-4">✅ Analyse terminée :</h2>
-      <div class="space-y-4">
-        <div v-for="(line, index) in formattedResult" :key="index" class="text-gray-300">
-          <p
-            v-if="line.startsWith('###')"
-            class="text-[#00FFC3] text-lg font-semibold mt-6 mb-2 border-b border-[#00FFC3] pb-1"
-          >
-            🔷 {{ cleanHeader(line) }}
-          </p>
-          <p
-            v-else-if="line.startsWith('-')"
-            class="ml-4 pl-4 border-l-4 border-blue-600 text-white bg-gray-800 rounded-md py-2 px-3 shadow-md"
-          >
-            📌 {{ line.substring(1).trim() }}
-          </p>
-          <p
-            v-else
-            class="ml-4 text-sm text-white leading-relaxed bg-[#10151f] rounded-md px-4 py-2"
-          >
-            💬 {{ line }}
-          </p>
+      <form @submit.prevent="analyserTrade" class="space-y-4 w-full max-w-md">
+        <div>
+          <label class="block mb-1 font-medium">Type de trade</label>
+          <select v-model="trade.type" class="w-full p-2 rounded bg-gray-100 dark:bg-gray-800">
+            <option value="buy">Achat</option>
+            <option value="sell">Vente</option>
+          </select>
         </div>
+
+        <div>
+          <label class="block mb-1 font-medium">Actif</label>
+          <input
+            v-model="trade.asset"
+            type="text"
+            placeholder="EUR/USD, BTC/USDT..."
+            class="w-full p-2 rounded bg-gray-100 dark:bg-gray-800"
+          />
+        </div>
+
+        <div>
+          <label class="block mb-1 font-medium">Prix d'entrée</label>
+          <input
+            v-model.number="trade.entry"
+            type="number"
+            step="0.0001"
+            class="w-full p-2 rounded bg-gray-100 dark:bg-gray-800"
+          />
+        </div>
+
+        <div>
+          <label class="block mb-1 font-medium">Prix de sortie</label>
+          <input
+            v-model.number="trade.exit"
+            type="number"
+            step="0.0001"
+            class="w-full p-2 rounded bg-gray-100 dark:bg-gray-800"
+          />
+        </div>
+
+        <button type="submit" :disabled="isLoading" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded">
+          {{ isLoading ? 'Analyse en cours...' : 'Analyser le trade' }}
+        </button>
+      </form>
+
+      <div v-if="result" class="mt-6 text-center max-w-md">
+        <h2 class="text-xl font-bold mb-2">Résultat :</h2>
+        <p>{{ result }}</p>
       </div>
-    </div>
+
+      <p class="mt-4">Thème actuel : {{ theme }}</p>
+    </main>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { $fetch } from 'ofetch'
+import { useTheme } from '@/composables/useTheme'
 
-const trade = ref({ asset: '', entry: '', exit: '', result: '', strategy: '', comment: '' })
-const result = ref('')
+const { theme, toggleTheme } = useTheme()
+
+const trade = ref({
+  type: 'buy',
+  asset: '',
+  entry: null as number | null,
+  exit: null as number | null,
+})
+
 const isLoading = ref(false)
+const result = ref('')
 const pendingTrade = ref(false)
 
-const formattedResult = computed(() => result.value.split('\n').filter(Boolean))
-
-function cleanHeader(line: string) {
-  return line.replace(/#+/, '').trim()
-}
-
-async function submitTrade() {
+const analyserTrade = async () => {
   isLoading.value = true
   pendingTrade.value = true
   result.value = ''
@@ -73,9 +86,12 @@ async function submitTrade() {
   try {
     const response = await $fetch('/api/analyse-trade', {
       method: 'POST',
-      body: trade.value
+      body: trade.value,
     })
+    console.log('Réponse de l’analyse :', response)
+
     result.value = response.result || 'Aucune réponse reçue'
+
     const history = JSON.parse(localStorage.getItem('tradeHistory') || '[]')
     history.push({ ...trade.value, result: result.value })
     localStorage.setItem('tradeHistory', JSON.stringify(history))
@@ -89,8 +105,5 @@ async function submitTrade() {
 </script>
 
 <style scoped>
-.loader {
-  border-width: 3px;
-  border-right-color: transparent;
-}
+/* Tu peux ajouter du style personnalisé ici si nécessaire */
 </style>
