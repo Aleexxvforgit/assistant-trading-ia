@@ -1,15 +1,26 @@
-// plugins/firebase.ts
-import { initializeApp } from 'firebase/app'
+import { initializeApp, getApps } from 'firebase/app'
 import { getFirestore } from 'firebase/firestore'
+import { defineNuxtPlugin, useRuntimeConfig } from 'nuxt/app'
 
-const firebaseConfig = {
-  apiKey: process.env.FIREBASE_API_KEY,
-  authDomain: process.env.FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.FIREBASE_PROJECT_ID,
-  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.FIREBASE_APP_ID,
-}
+export default defineNuxtPlugin(() => {
+  const config = useRuntimeConfig()
 
-const app = initializeApp(firebaseConfig)
-export const db = getFirestore(app)
+  const firebaseConfig = {
+    apiKey: config.public.FIREBASE_API_KEY as string,
+    authDomain: config.public.FIREBASE_AUTH_DOMAIN as string,
+    projectId: config.public.FIREBASE_PROJECT_ID as string,
+    storageBucket: config.public.FIREBASE_STORAGE_BUCKET as string,
+    messagingSenderId: config.public.FIREBASE_MESSAGING_SENDER_ID as string,
+    appId: config.public.FIREBASE_APP_ID as string,
+  }
+
+  // Empêche Firebase de s'initialiser deux fois
+  const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0]
+  const db = getFirestore(app)
+
+  return {
+    provide: {
+      db,
+    }
+  }
+})
