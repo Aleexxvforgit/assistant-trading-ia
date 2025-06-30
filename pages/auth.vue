@@ -99,10 +99,12 @@
 import { ref } from 'vue'
 import { useAuthStore } from '~/stores/useAuthStore'
 import { useRouter } from 'vue-router'
-import { getAuth, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword } from 'firebase/auth'
+import { useNuxtApp } from '#app'
+import { GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'
 
 const authStore = useAuthStore()
 const router = useRouter()
+const { $auth } = useNuxtApp()
 const email = ref('')
 const password = ref('')
 const isLoading = ref(false)
@@ -121,11 +123,15 @@ async function login() {
     if (isOfflineMode.value) {
       authStore.loginOffline(email.value)
       await router.push('/')
+    } else if ($auth) {
+      // Authentification email/mot de passe Firebase (optionnel)
+      await signInWithEmailAndPassword($auth, email.value, password.value)
+      await router.push('/')
     } else {
-      error.value = "La connexion à Firebase par email/mot de passe n'est pas encore disponible. Utilisez Google ou le mode hors ligne."
+      error.value = "La connexion à Firebase n'est pas disponible."
     }
   } catch (err) {
-    error.value = "Une erreur est survenue lors de la connexion."
+    error.value = "Erreur lors de la connexion."
     console.error(err)
   } finally {
     isLoading.value = false
@@ -136,11 +142,13 @@ async function loginWithGoogle() {
   isLoading.value = true
   error.value = ''
   try {
-    const auth = getAuth()
-    const provider = new GoogleAuthProvider()
-    await signInWithPopup(auth, provider)
-    // L'utilisateur est connecté via Google, rechargement ou redirection
-    await router.push('/')
+    if ($auth) {
+      const provider = new GoogleAuthProvider()
+      await signInWithPopup($auth, provider)
+      await router.push('/')
+    } else {
+      error.value = "Connexion Google non disponible."
+    }
   } catch (err) {
     error.value = "Erreur lors de la connexion Google."
     console.error(err)
@@ -153,9 +161,12 @@ async function register() {
   isLoading.value = true
   registerError.value = ''
   try {
-    const auth = getAuth()
-    await createUserWithEmailAndPassword(auth, registerEmail.value, registerPassword.value)
-    await router.push('/')
+    if ($auth) {
+      await createUserWithEmailAndPassword($auth, registerEmail.value, registerPassword.value)
+      await router.push('/')
+    } else {
+      registerError.value = "Création de compte non disponible."
+    }
   } catch (err) {
     registerError.value = "Erreur lors de la création du compte."
     console.error(err)
@@ -168,10 +179,13 @@ async function registerWithGoogle() {
   isLoading.value = true
   registerError.value = ''
   try {
-    const auth = getAuth()
-    const provider = new GoogleAuthProvider()
-    await signInWithPopup(auth, provider)
-    await router.push('/')
+    if ($auth) {
+      const provider = new GoogleAuthProvider()
+      await signInWithPopup($auth, provider)
+      await router.push('/')
+    } else {
+      registerError.value = "Inscription Google non disponible."
+    }
   } catch (err) {
     registerError.value = "Erreur lors de l'inscription Google."
     console.error(err)
