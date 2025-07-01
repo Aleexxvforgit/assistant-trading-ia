@@ -6,6 +6,7 @@
 
 <script setup>
 import { onMounted } from 'vue'
+import { useHead } from '@unhead/vue'
 import { useTheme } from '@/composables/useTheme'
 import { useAuthStore } from '~/stores/useAuthStore'
 import { useTradesStore } from '~/stores/useTradesStore'
@@ -15,44 +16,35 @@ const authStore = useAuthStore()
 const tradesStore = useTradesStore()
 const { theme } = useTheme()
 
-onMounted(() => {
-  // Initialiser le thème
-  if (theme.value === 'dark') {
-    document.documentElement.classList.add('dark')
-  }
+// Injection du script dark mode dans le head pour éviter le mismatch SSR/CSR
+useHead({
+  script: [
+    {
+      innerHTML: `
+        try {
+          var theme = localStorage.getItem('theme');
+          if (!theme) {
+            theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          }
+          if (theme === 'dark') {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+        } catch (e) {}`,
+      type: 'text/javascript',
+      charset: 'utf-8'
+    }
+  ],
+  __dangerouslyDisableSanitizers: ['script']
+})
 
-  // Initialiser les données depuis le localStorage
+// Initialiser les données depuis le localStorage et Firebase
+onMounted(() => {
   authStore.initFromLocalStorage()
+  authStore.initFirebaseAuthListener()
   tradesStore.loadTrades()
 })
-</script>
-
-<!-- Ajout d'un script dans le head pour appliquer la classe dark dès le chargement -->
-<script>
-export default {
-  head: {
-    script: [
-      {
-        innerHTML: `
-          try {
-            var theme = localStorage.getItem('theme');
-            if (!theme) {
-              // Prendre la préférence système si aucun thème n'est stocké
-              theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-            }
-            if (theme === 'dark') {
-              document.documentElement.classList.add('dark');
-            } else {
-              document.documentElement.classList.remove('dark');
-            }
-          } catch (e) {}`,
-        type: 'text/javascript',
-        charset: 'utf-8'
-      }
-    ],
-    __dangerouslyDisableSanitizers: ['script']
-  }
-}
 </script>
 
 <style>

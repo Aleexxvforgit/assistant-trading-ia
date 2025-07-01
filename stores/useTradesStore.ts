@@ -1,6 +1,9 @@
 // stores/useTradesStore.ts
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import { useNuxtApp } from '#app'
+import { doc, setDoc, getDoc } from 'firebase/firestore'
+import { useAuthStore } from './useAuthStore'
 
 export interface Trade {
   id: string;
@@ -18,12 +21,30 @@ export const useTradesStore = defineStore('trades', () => {
   const trades = ref<Trade[]>([])
   const isLoading = ref(false)
   
-  // Charger les trades depuis le localStorage
+  // Charger les trades depuis le localStorage (robuste)
   function loadTrades() {
     const storedTrades = localStorage.getItem('tradeHistory')
     if (storedTrades) {
-      trades.value = JSON.parse(storedTrades)
+      try {
+        const parsed = JSON.parse(storedTrades)
+        if (Array.isArray(parsed)) {
+          trades.value = parsed
+        } else {
+          throw new Error('Format invalide')
+        }
+      } catch (e) {
+        // Données corrompues : on réinitialise
+        console.warn('Historique corrompu, réinitialisation locale', e)
+        localStorage.removeItem('tradeHistory')
+        trades.value = []
+      }
     }
+  }
+
+  // Réinitialiser l'historique local
+  function resetHistory() {
+    trades.value = []
+    localStorage.removeItem('tradeHistory')
   }
   
   // Ajouter un trade (fonctionne même sans Firebase)
@@ -88,11 +109,41 @@ export const useTradesStore = defineStore('trades', () => {
     })
   }
   
+  // Synchroniser l'historique local vers Firestore (upload)
+  async function syncToCloud() {
+    const { $db } = useNuxtApp()
+    const authStore = useAuthStore()
+    if (!authStore.user?.id || authStore.isOfflineMode) return false
+    const userId = authStore.user.id
+    await setDoc(doc($db, 'tradeHistories', userId), {
+      trades: trades.value
+    })
+    return true
+  }
+
+  // Récupérer l'historique Firestore (download)
+  async function syncFromCloud() {
+    const { $db } = useNuxtApp()
+    const authStore = useAuthStore()
+    if (!authStore.user?.id || authStore.isOfflineMode) return false
+    const userId = authStore.user.id
+    const snap = await getDoc(doc($db, 'tradeHistories', userId))
+    if (snap.exists() && Array.isArray(snap.data().trades)) {
+      trades.value = snap.data().trades
+      localStorage.setItem('tradeHistory', JSON.stringify(trades.value))
+      return true
+    }
+    return false
+  }
+  
   return {
     trades,
     isLoading,
     loadTrades,
     addTrade,
-    analyseTrade
+    analyseTrade,
+    resetHistory,
+    syncToCloud,
+    syncFromCloud
   }
 })

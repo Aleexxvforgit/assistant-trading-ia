@@ -1,19 +1,45 @@
 <template>
   <div class="min-h-screen bg-white text-black dark:bg-gray-900 dark:text-white transition-colors duration-300">
+    <div v-if="showDeleteModal && tradesStore.trades.length > 0" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80">
+      <div class="flex items-center justify-center w-full h-full">
+        <div class="p-8 text-center bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-lg animate-scale-in">
+          <UIcon name="i-heroicons-exclamation-triangle" class="text-5xl text-red-500 mb-6" />
+          <h3 class="text-2xl font-bold mb-4 text-red-700 dark:text-red-400">Suppression définitive</h3>
+          <p class="mb-8 text-lg text-gray-700 dark:text-gray-200">
+            Cette action va <span class="font-bold text-red-600">effacer <u>tous vos trades</u></span> de façon <span class="font-bold">irréversible</span>.<br>
+            Êtes-vous certain de vouloir continuer&nbsp;?
+          </p>
+          <div class="flex flex-col sm:flex-row justify-center gap-4 mt-2">
+            <UButton color="white" block class="py-3 text-lg font-semibold rounded-xl shadow-sm flex items-center justify-center gap-2 bg-gray-100/60 hover:bg-gray-200/80 text-black dark:bg-gray-800/60 dark:hover:bg-gray-800/80 dark:text-white transition" @click="showDeleteModal = false">
+              Annuler
+            </UButton>
+            <UButton color="white" block class="py-3 text-lg font-semibold rounded-xl shadow-sm flex items-center justify-center gap-2 bg-red-100/60 hover:bg-red-200/80 text-red-700 dark:bg-red-800/60 dark:hover:bg-red-800/80 dark:text-white transition" @click="confirmDeleteHistory">
+              Oui, tout effacer
+            </UButton>
+          </div>
+        </div>
+      </div>
+    </div>
     <main class="container mx-auto px-4 py-12 pt-28">
       <div class="flex justify-between items-center mb-6">
         <h1 class="text-3xl font-bold">Historique des trades</h1>
         <UBadge v-if="authStore.isOfflineMode" color="orange">Mode Hors Ligne</UBadge>
       </div>
-
       <UCard v-if="!authStore.isAuthenticated" class="mb-8">
         <template #header>
           <h2 class="text-xl font-semibold">Connexion requise</h2>
-</template>
+        </template>
         <p class="mb-4">Veuillez vous connecter pour accéder à l'historique.</p>
-        <UButton to="/auth" color="primary">Se connecter</UButton>
+        <UButton
+          to="/auth"
+          color="white"
+          block
+          class="py-2 text-base font-semibold rounded-xl shadow-sm flex items-center justify-center gap-2 bg-gray-100/60 hover:bg-gray-200/80 text-black dark:bg-gray-800/60 dark:hover:bg-gray-800/80 dark:text-white transition"
+        >
+          <span class="i-heroicons-lock-closed"></span>
+          Se connecter
+        </UButton>
       </UCard>
-
       <template v-else>
         <!-- Grille avec statistiques à gauche et filtres à droite -->
         <div v-if="tradesStore.trades.length > 0" class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
@@ -22,10 +48,9 @@
           </div>
           <div>
             <UCard>
-            <template #header>
+              <template #header>
                 <h2 class="text-lg font-semibold">Filtres</h2>
               </template>
-
               <div class="space-y-8">
                 <h3 class="text-xl font-bold mb-2 text-center">Filtres avancés</h3>
                 <div class="grid grid-cols-1 gap-6">
@@ -34,7 +59,7 @@
                     <select
                       id="filter-type"
                       v-model="filters.type"
-                      class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-base text-black dark:text-white"
+                      class="w-full bg-white dark:bg-gray-800 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-base text-black dark:text-white"
                     >
                       <option value="all" disabled selected hidden>Type de trade</option>
                       <option value="all">Tous</option>
@@ -47,7 +72,7 @@
                     <select
                       id="filter-result"
                       v-model="filters.result"
-                      class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-base text-black dark:text-white"
+                      class="w-full bg-white dark:bg-gray-800 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-base text-black dark:text-white"
                     >
                       <option value="all" disabled selected hidden>Résultat</option>
                       <option value="all">Tous</option>
@@ -61,7 +86,7 @@
                       id="filter-asset"
                       v-model="filters.asset"
                       placeholder="Filtrer par actif..."
-                      class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-base placeholder-gray-400 dark:placeholder-gray-500"
+                      class="w-full bg-white dark:bg-gray-800 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-base placeholder-gray-400 dark:placeholder-gray-500"
                     />
                   </div>
                   <div>
@@ -69,7 +94,7 @@
                     <select
                       id="filter-strategy"
                       v-model="filters.strategy"
-                      class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-base text-black dark:text-white"
+                      class="w-full bg-white dark:bg-gray-800 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-base text-black dark:text-white"
                     >
                       <option value="all" disabled selected hidden>Stratégie</option>
                       <option value="all">Toutes</option>
@@ -82,15 +107,46 @@
                   </div>
                 </div>
                 <div class="flex flex-col gap-2 mt-6">
-                  <UButton @click="resetFilters" variant="ghost" block>Réinitialiser</UButton>
-                  <UButton color="primary" @click="exportTrades" block>Exporter</UButton>
+                  <UButton
+                    @click="resetFilters"
+                    color="white"
+                    block
+                    class="py-2 text-base font-semibold rounded-xl shadow-sm flex items-center justify-center gap-2 bg-gray-100/60 hover:bg-gray-200/80 text-black dark:bg-gray-800/60 dark:hover:bg-gray-800/80 dark:text-white transition"
+                  >
+                    Réinitialiser
+                  </UButton>
+                  <UButton
+                    color="white"
+                    @click="exportTrades"
+                    block
+                    class="py-2 text-base font-semibold rounded-xl shadow-sm flex items-center justify-center gap-2 bg-gray-100/60 hover:bg-gray-200/80 text-black dark:bg-gray-800/60 dark:hover:bg-gray-800/80 dark:text-white transition"
+                  >
+                    Exporter
+                  </UButton>
+                  <UButton color="white" @click="() => $refs.csvInput.click()" block class="py-2 text-base font-semibold rounded-xl shadow-sm flex items-center justify-center gap-2 bg-gray-100/60 hover:bg-gray-200/80 text-black dark:bg-gray-800/60 dark:hover:bg-gray-800/80 dark:text-white transition">
+                    <span class="i-heroicons-arrow-up-tray"></span>
+                    Importer un CSV
+                  </UButton>
+                  <input ref="csvInput" type="file" accept=".csv" class="hidden" @change="handleCsvImport" />
+                  <UButton color="white" variant="soft" @click="resetHistory" block class="py-2 text-base font-semibold rounded-xl shadow-sm flex items-center justify-center gap-2 bg-red-100/60 hover:bg-red-200/80 text-red-700 dark:bg-red-800/60 dark:hover:bg-red-800/80 dark:text-white transition">
+                    Effacer l'historique
+                  </UButton>
+                  <UButton color="white" @click="syncCloud" block class="py-2 text-base font-semibold rounded-xl shadow-sm flex items-center justify-center gap-2 bg-blue-100/60 hover:bg-blue-200/80 text-blue-700 dark:bg-blue-800/60 dark:hover:bg-blue-800/80 dark:text-white transition">
+                    <span class="i-heroicons-cloud-arrow-up"></span>
+                    Synchroniser avec le cloud
+                  </UButton>
+                  <div v-if="tradesStore.trades.length === 0" class="mt-4">
+                    <UButton color="white" @click="syncFromCloud" block class="py-2 text-base font-semibold rounded-xl shadow-sm flex items-center justify-center gap-2 bg-blue-100/60 hover:bg-blue-200/80 text-blue-700 dark:bg-blue-800/60 dark:hover:bg-blue-800/80 dark:text-white transition">
+                      <span class="i-heroicons-cloud-arrow-down"></span>
+                      Récupérer depuis le cloud
+                    </UButton>
+                  </div>
                   <p class="text-xs text-gray-500 dark:text-gray-400 text-center mt-2">Affinez votre recherche grâce aux filtres avancés.</p>
                 </div>
               </div>
             </UCard>
           </div>
-  </div>
-
+        </div>
         <!-- Pas de trades enregistrés -->
         <UCard v-if="tradesStore.trades.length === 0">
           <div class="p-12 text-center">
@@ -100,6 +156,12 @@
               Vous n'avez pas encore effectué d'analyses de trades.
             </p>
             <UButton to="/" color="primary">Analyser un trade</UButton>
+            <div class="mt-6 flex justify-center">
+              <UButton color="white" @click="syncFromCloud" block class="w-full max-w-xs py-2 text-base font-semibold rounded-xl shadow-sm flex items-center justify-center gap-2 bg-blue-100/60 hover:bg-blue-200/80 text-blue-700 dark:bg-blue-800/60 dark:hover:bg-blue-800/80 dark:text-white transition">
+                <span class="i-heroicons-cloud-arrow-down"></span>
+                Récupérer depuis le cloud
+              </UButton>
+            </div>
           </div>
         </UCard>
 
@@ -159,6 +221,8 @@
 import { ref, computed } from 'vue'
 import { useAuthStore } from '~/stores/useAuthStore'
 import { useTradesStore } from '~/stores/useTradesStore'
+
+definePageMeta({ middleware: 'auth' })
 
 const authStore = useAuthStore()
 const tradesStore = useTradesStore()
@@ -245,5 +309,102 @@ const exportTrades = () => {
   link.click()
   document.body.removeChild(link)
 }
+
+// Suppression de l'historique
+const showDeleteModal = ref(false)
+
+const resetHistory = () => {
+  showDeleteModal.value = true
+}
+
+const confirmDeleteHistory = () => {
+  tradesStore.resetHistory()
+  showDeleteModal.value = false
+}
+
+// Importer un CSV
+const handleCsvImport = (event: Event) => {
+  const input = event.target as HTMLInputElement
+  if (!input.files || input.files.length === 0) return
+  const file = input.files[0]
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    const text = e.target?.result as string
+    if (!text) return
+    try {
+      // Parsing CSV simple (séparateur virgule, première ligne = header)
+      const lines = text.split(/\r?\n/).filter(Boolean)
+      const headers = lines[0].split(',').map(h => h.trim().toLowerCase())
+      const required = ['type', 'asset', 'entry', 'exit']
+      if (!required.every(r => headers.includes(r))) {
+        alert('Le CSV doit contenir les colonnes : type, asset, entry, exit')
+        return
+      }
+      const trades = lines.slice(1).map(line => {
+        const values = line.split(',')
+        const obj: any = {}
+        headers.forEach((h, i) => { obj[h] = values[i] })
+        return obj
+      })
+      let count = 0
+      for (const t of trades) {
+        if (t.type && t.asset && t.entry && t.exit) {
+          tradesStore.addTrade({
+            type: t.type.trim() as 'buy' | 'sell',
+            asset: t.asset.trim(),
+            entry: parseFloat(t.entry),
+            exit: parseFloat(t.exit),
+            strategy: t.strategy || '',
+            comment: t.comment || '',
+            result: ''
+          })
+          count++
+        }
+      }
+      alert(count + ' trades importés avec succès !')
+    } catch (e) {
+      alert('Erreur lors de l\'import du CSV')
+    }
+  }
+  reader.readAsText(file)
+}
+
+// Synchroniser avec le cloud
+const syncCloud = async () => {
+  try {
+    const ok = await tradesStore.syncToCloud()
+    if (ok) {
+      alert('Synchronisation vers le cloud réussie !')
+    } else {
+      alert('Impossible de synchroniser (mode hors ligne ou non connecté)')
+    }
+  } catch (e) {
+    alert('Erreur lors de la synchronisation cloud')
+  }
+}
+
+// Récupérer depuis le cloud
+const syncFromCloud = async () => {
+  try {
+    const ok = await tradesStore.syncFromCloud()
+    if (ok) {
+      alert('Historique récupéré depuis le cloud !')
+    } else {
+      alert('Aucun historique trouvé sur le cloud ou mode hors ligne/non connecté')
+    }
+  } catch (e) {
+    alert('Erreur lors de la récupération cloud')
+  }
+}
 </script>
+
+<style scoped>
+@keyframes scale-in {
+  0% { opacity: 0; transform: scale(0.9); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.animate-scale-in {
+  animation: scale-in 0.25s cubic-bezier(0.4,0,0.2,1);
+}
+</style>
 

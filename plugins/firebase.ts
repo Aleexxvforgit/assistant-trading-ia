@@ -1,5 +1,6 @@
 import { initializeApp, getApps } from 'firebase/app'
 import { getFirestore } from 'firebase/firestore'
+import { getAuth } from 'firebase/auth'
 import { defineNuxtPlugin, useRuntimeConfig } from 'nuxt/app'
 
 export default defineNuxtPlugin(() => {
@@ -17,10 +18,12 @@ export default defineNuxtPlugin(() => {
   // Empêche Firebase de s'initialiser deux fois
   const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0]
   const db = getFirestore(app)
+  const auth = getAuth(app)
 
   return {
     provide: {
       db,
+      auth,
     }
   }
 })

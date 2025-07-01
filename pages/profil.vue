@@ -14,7 +14,7 @@
             <img
               src="https://api.dicebear.com/7.x/bottts/svg?seed=user"
               alt="avatar"
-              class="w-20 h-20 rounded-full border border-gray-400 dark:border-gray-600"
+              class="w-20 h-20 rounded-full"
             />
             <div>
               <h2 class="text-xl font-semibold">{{ authStore.user?.displayName || 'Utilisateur' }}</h2>
@@ -98,11 +98,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import { useAuthStore } from '~/stores/useAuthStore'
 import { useTradesStore } from '~/stores/useTradesStore'
 import { useTheme } from '~/composables/useTheme'
 import { useRouter } from 'vue-router'
+
+definePageMeta({ middleware: 'auth' })
 
 const router = useRouter()
 const authStore = useAuthStore()
