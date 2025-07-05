@@ -1,145 +1,296 @@
 <template>
-  <div>
-    <main>
-      <div>
-        <h1>Historique des trades</h1>
-        <UBadge v-if="authStore.isOfflineMode">Mode Hors Ligne</UBadge>
-      </div>
-      <div v-if="!authStore.isAuthenticated">
-        <UIcon name="i-heroicons-lock-closed" />
-        <h2>Connexion requise</h2>
-        <p>
-          Vous devez être connecté pour accéder à cette page et consulter votre historique de trades.
-        </p>
-        <UButton to="/auth">Se connecter</UButton>
-      </div>
-      <template v-else>
-        <div>
-          <TradeStats :trades="tradesStore.trades" title="Statistiques globales" />
-          <UCard>
-            <template #header>
-              <h2>Filtres</h2>
-            </template>
-            <div>
-              <h3>Filtres avancés</h3>
-              <div>
-                <div>
-                  <label for="filter-type">Type de trade</label>
-                  <select id="filter-type" v-model="filters.type">
-                    <option value="all" disabled selected hidden>Type de trade</option>
-                    <option value="all">Tous</option>
-                    <option value="buy">Achat</option>
-                    <option value="sell">Vente</option>
-                  </select>
-                </div>
-                <div>
-                  <label for="filter-result">Résultat</label>
-                  <select id="filter-result" v-model="filters.result">
-                    <option value="all" disabled selected hidden>Résultat</option>
-                    <option value="all">Tous</option>
-                    <option value="win">Gagnant</option>
-                    <option value="loss">Perdant</option>
-                  </select>
-                </div>
-                <div>
-                  <label for="filter-asset">Actif</label>
-                  <UInput id="filter-asset" v-model="filters.asset" placeholder="Filtrer par actif..." />
-                </div>
-                <div>
-                  <label for="filter-strategy">Stratégie</label>
-                  <select id="filter-strategy" v-model="filters.strategy">
-                    <option value="all" disabled selected hidden>Stratégie</option>
-                    <option value="all">Toutes</option>
-                    <option value="breakout">Breakout</option>
-                    <option value="range">Range</option>
-                    <option value="trend">Tendance</option>
-                    <option value="scalping">Scalping</option>
-                    <option value="swing">Swing</option>
-                  </select>
-                </div>
-                <div>
-                  <UButton @click="resetFilters">Réinitialiser</UButton>
-                  <UButton @click="exportTrades">Exporter</UButton>
-                  <UButton @click="() => $refs.csvInput.click()">
-                    <span class="i-heroicons-arrow-up-tray"></span>
-                    Importer un CSV
-                  </UButton>
-                  <input ref="csvInput" type="file" accept=".csv" @change="handleCsvImport" />
-                  <UButton @click="resetHistory">Effacer l'historique</UButton>
-                  <UButton @click="syncCloud">
-                    <span class="i-heroicons-cloud-arrow-up"></span>
-                    Synchroniser avec le cloud
-                  </UButton>
-                  <div v-if="tradesStore.trades.length === 0">
-                    <UButton @click="syncFromCloud">
-                      <span class="i-heroicons-cloud-arrow-down"></span>
-                      Récupérer depuis le cloud
-                    </UButton>
-                  </div>
-                  <p>Affinez votre recherche grâce aux filtres avancés.</p>
-                </div>
-              </div>
-            </div>
-          </UCard>
+  <div style="min-height: 100vh; background: var(--background); margin-top: 80px;">
+    <!-- Hero Section -->
+    <section style="padding: 3rem 1rem; text-align: center; background: var(--background);">
+      <div style="max-width: 800px; margin: 0 auto; margin-bottom: 3rem;">
+        <!-- Logo/Titre principal -->
+        <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-bottom: 2rem;">
+          <span style="font-size: 3rem; font-weight: bold; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-600) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; line-height: 1; display: flex; align-items: center;">TradeGenius</span>
+          <span style="font-size: 3rem; line-height: 1;">🤖</span>
         </div>
-        <UCard v-if="tradesStore.trades.length === 0">
-          <div>
-            <UIcon name="i-heroicons-inbox" />
-            <h3>Aucun trade enregistré</h3>
-            <p>Vous n'avez pas encore effectué d'analyses de trades.</p>
-            <UButton to="/">Analyser un trade</UButton>
+        
+        <!-- Titre et description -->
+        <h1 style="font-size: 2.5rem; font-weight: bold; color: var(--text); margin-bottom: 1.5rem; line-height: 1.2;">
+          Historique des trades
+        </h1>
+        <p style="font-size: 1.25rem; color: var(--text-secondary); margin-bottom: 0; line-height: 1.6;">
+          Consultez et analysez vos performances de trading
+        </p>
+      </div>
+    </section>
+
+    <!-- Contenu principal -->
+    <main style="padding: 0 1rem 3rem; max-width: 800px; margin: 0 auto;">
+      <div v-if="!authStore.isAuthenticated" style="text-align: center; padding: 3rem 1rem;">
+        <div style="background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 3rem; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08); backdrop-filter: blur(20px);">
+          <div style="width: 64px; height: 64px; background: var(--warning-100); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto;">
+            <Icon name="heroicons:lock-closed-20-solid" style="width: 32px; height: 32px; color: var(--warning-600);" />
+          </div>
+          <h2 style="font-size: 1.5rem; font-weight: 600; color: var(--text); margin-bottom: 1rem;">Connexion requise</h2>
+          <p style="color: var(--text-secondary); margin-bottom: 2rem; line-height: 1.6;">
+            Vous devez être connecté pour accéder à cette page et consulter votre historique de trades.
+          </p>
+          <NuxtLink to="/auth" 
+                    style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-600) 100%); color: white; padding: 1rem 2rem; border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 1rem; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); display: inline-block;"
+                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(59, 130, 246, 0.4)'"
+                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(59, 130, 246, 0.3)'">
+            Se connecter
+          </NuxtLink>
+        </div>
+      </div>
+
+      <template v-else>
+        <!-- Badge Mode Hors Ligne -->
+        <div v-if="authStore.isOfflineMode" style="margin-bottom: 2rem; text-align: center;">
+          <span style="background: var(--warning-100); color: var(--warning-700); padding: 0.5rem 1rem; border-radius: 16px; font-size: 0.875rem; font-weight: 600; border: 1px solid var(--warning-200);">
+            Mode Hors Ligne
+          </span>
+        </div>
+
+        <!-- Statistiques -->
+        <div style="margin-bottom: 2rem;">
+          <TradeStats :trades="tradesStore.trades" title="Statistiques globales" />
+        </div>
+
+        <!-- Card Filtres -->
+        <div style="background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 2.5rem; margin-bottom: 2rem; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08); backdrop-filter: blur(20px);">
+          <h2 style="font-size: 1.5rem; font-weight: 600; color: var(--text); margin-bottom: 2rem; display: flex; align-items: center; gap: 0.5rem;">
+            <Icon name="heroicons:funnel-20-solid" style="width: 20px; height: 20px; color: var(--primary);" />
+            Filtres avancés
+          </h2>
+          
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+            <!-- Type de trade -->
             <div>
-              <UButton @click="() => $refs.csvInput.click()">
-                <span class="i-heroicons-arrow-up-tray"></span>
-                Importer un CSV
-              </UButton>
-              <input ref="csvInput" type="file" accept=".csv" @change="handleCsvImport" />
-              <UButton @click="syncFromCloud">
-                <span class="i-heroicons-cloud-arrow-down"></span>
-                Récupérer depuis le cloud
-              </UButton>
+              <label for="filter-type" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text); font-size: 0.875rem;">
+                Type de trade
+              </label>
+              <select id="filter-type" 
+                      v-model="filters.type"
+                      style="width: 100%; padding: 1rem; border: 2px solid var(--border); border-radius: 12px; background: var(--background); color: var(--text); font-size: 1rem; transition: all 0.2s ease;"
+                      onfocus="this.style.borderColor='var(--primary)'; this.style.boxShadow='0 0 0 3px rgba(59, 130, 246, 0.1)'"
+                      onblur="this.style.borderColor='var(--border)'; this.style.boxShadow='none'">
+                <option value="all">Tous</option>
+                <option value="buy">Achat</option>
+                <option value="sell">Vente</option>
+              </select>
+            </div>
+
+            <!-- Résultat -->
+            <div>
+              <label for="filter-result" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text); font-size: 0.875rem;">
+                Résultat
+              </label>
+              <select id="filter-result" 
+                      v-model="filters.result"
+                      style="width: 100%; padding: 1rem; border: 2px solid var(--border); border-radius: 12px; background: var(--background); color: var(--text); font-size: 1rem; transition: all 0.2s ease;"
+                      onfocus="this.style.borderColor='var(--primary)'; this.style.boxShadow='0 0 0 3px rgba(59, 130, 246, 0.1)'"
+                      onblur="this.style.borderColor='var(--border)'; this.style.boxShadow='none'">
+                <option value="all">Tous</option>
+                <option value="win">Gagnant</option>
+                <option value="loss">Perdant</option>
+              </select>
+            </div>
+
+            <!-- Actif -->
+            <div>
+              <label for="filter-asset" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text); font-size: 0.875rem;">
+                Actif
+              </label>
+              <input id="filter-asset" 
+                     v-model="filters.asset" 
+                     type="text"
+                     placeholder="Filtrer par actif..." 
+                     style="width: 100%; padding: 1rem; border: 2px solid var(--border); border-radius: 12px; background: var(--background); color: var(--text); font-size: 1rem; transition: all 0.2s ease;"
+                     onfocus="this.style.borderColor='var(--primary)'; this.style.boxShadow='0 0 0 3px rgba(59, 130, 246, 0.1)'"
+                     onblur="this.style.borderColor='var(--border)'; this.style.boxShadow='none'" />
+            </div>
+
+            <!-- Stratégie -->
+            <div>
+              <label for="filter-strategy" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text); font-size: 0.875rem;">
+                Stratégie
+              </label>
+              <select id="filter-strategy" 
+                      v-model="filters.strategy"
+                      style="width: 100%; padding: 1rem; border: 2px solid var(--border); border-radius: 12px; background: var(--background); color: var(--text); font-size: 1rem; transition: all 0.2s ease;"
+                      onfocus="this.style.borderColor='var(--primary)'; this.style.boxShadow='0 0 0 3px rgba(59, 130, 246, 0.1)'"
+                      onblur="this.style.borderColor='var(--border)'; this.style.boxShadow='none'">
+                <option value="all">Toutes</option>
+                <option value="breakout">Breakout</option>
+                <option value="range">Range</option>
+                <option value="trend">Tendance</option>
+                <option value="scalping">Scalping</option>
+                <option value="swing">Swing</option>
+              </select>
+            </div>
+
+            <!-- Commentaire -->
+            <div>
+              <label for="filter-comment" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text); font-size: 0.875rem;">
+                Commentaire
+              </label>
+              <input id="filter-comment" 
+                     v-model="filters.comment" 
+                     type="text"
+                     placeholder="Filtrer par commentaire..." 
+                     style="width: 100%; padding: 1rem; border: 2px solid var(--border); border-radius: 12px; background: var(--background); color: var(--text); font-size: 1rem; transition: all 0.2s ease;"
+                     onfocus="this.style.borderColor='var(--primary)'; this.style.boxShadow='0 0 0 3px rgba(59, 130, 246, 0.1)'"
+                     onblur="this.style.borderColor='var(--border)'; this.style.boxShadow='none'" />
             </div>
           </div>
-        </UCard>
-        <div v-else>
-          <UCard v-if="filteredTrades.length === 0">
-            <UIcon name="i-heroicons-magnifying-glass" />
-            <h3>Aucun résultat</h3>
-            <p>Aucun trade ne correspond à vos critères de filtrage.</p>
-            <UButton @click="resetFilters">Réinitialiser les filtres</UButton>
-          </UCard>
-          <UCard v-for="trade in filteredTrades" :key="trade.id">
-            <template #header>
-              <div>
-                <h3>
-                  {{ trade.type === 'buy' ? '🔵 Achat' : '🔴 Vente' }} - {{ trade.asset }}
-                </h3>
-                <UBadge :color="trade.result?.includes('✅') ? 'green' : 'red'">
-                  {{ trade.result?.includes('✅') ? 'Gagnant' : 'Perdant' }}
-                </UBadge>
+
+          <!-- Actions -->
+          <div style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: center;">
+            <button @click="resetFilters" 
+                    style="background: var(--muted); color: var(--text); padding: 0.75rem 1.5rem; border: 2px solid var(--border); border-radius: 12px; font-weight: 600; font-size: 0.875rem; cursor: pointer; transition: all 0.2s ease;"
+                    onmouseover="this.style.borderColor='var(--primary-200)'; this.style.transform='translateY(-1px)'"
+                    onmouseout="this.style.borderColor='var(--border)'; this.style.transform='translateY(0)'">
+              Réinitialiser
+            </button>
+            
+            <button @click="exportTrades" 
+                    style="background: var(--success-100); color: var(--success-700); padding: 0.75rem 1.5rem; border: 2px solid var(--success-200); border-radius: 12px; font-weight: 600; font-size: 0.875rem; cursor: pointer; transition: all 0.2s ease;"
+                    onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(34, 197, 94, 0.2)'"
+                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+              Exporter CSV
+            </button>
+            
+            <div style="position: relative;">
+              <button @click="() => csvInput?.click()" 
+                      style="background: var(--info-100); color: var(--info-700); padding: 0.75rem 1.5rem; border: 2px solid var(--info-200); border-radius: 12px; font-weight: 600; font-size: 0.875rem; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; gap: 0.5rem;"
+                      onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(59, 130, 246, 0.2)'"
+                      onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                <Icon name="heroicons:arrow-up-tray-20-solid" style="width: 16px; height: 16px;" />
+                Importer CSV
+              </button>
+              <input ref="csvInput" type="file" accept=".csv" @change="handleCsvImport" style="display: none;" />
+            </div>
+            
+            <button @click="resetHistory" 
+                    style="background: var(--destructive-100); color: var(--destructive-700); padding: 0.75rem 1.5rem; border: 2px solid var(--destructive-200); border-radius: 12px; font-weight: 600; font-size: 0.875rem; cursor: pointer; transition: all 0.2s ease;"
+                    onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(220, 38, 38, 0.2)'"
+                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+              Effacer l'historique
+            </button>
+            
+            <button @click="syncCloud" 
+                    style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-600) 100%); color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 12px; font-weight: 600; font-size: 0.875rem; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; gap: 0.5rem; box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);"
+                    onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 16px rgba(59, 130, 246, 0.3)'"
+                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(59, 130, 246, 0.2)'">
+              <Icon name="heroicons:cloud-arrow-up-20-solid" style="width: 16px; height: 16px;" />
+              Synchroniser
+            </button>
+            
+            <div v-if="tradesStore.trades.length === 0">
+              <button @click="syncFromCloud" 
+                      style="background: var(--accent-100, var(--primary-100)); color: var(--accent-700, var(--primary-700)); padding: 0.75rem 1.5rem; border: 2px solid var(--accent-200, var(--primary-200)); border-radius: 12px; font-weight: 600; font-size: 0.875rem; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; gap: 0.5rem;"
+                      onmouseover="this.style.transform='translateY(-1px)'"
+                      onmouseout="this.style.transform='translateY(0)'">
+                <Icon name="heroicons:cloud-arrow-down-20-solid" style="width: 16px; height: 16px;" />
+                Récupérer du cloud
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card Liste des trades -->
+        <div style="background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 2.5rem; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08); backdrop-filter: blur(20px);">
+          <h2 style="font-size: 1.5rem; font-weight: 600; color: var(--text); margin-bottom: 2rem; display: flex; align-items: center; gap: 0.5rem;">
+            <Icon name="heroicons:list-bullet-20-solid" style="width: 20px; height: 20px; color: var(--primary);" />
+            Historique des trades ({{ filteredTrades.length }})
+          </h2>
+
+          <!-- Message si aucun trade -->
+          <div v-if="filteredTrades.length === 0" style="text-align: center; padding: 3rem 1rem;">
+            <div style="width: 64px; height: 64px; background: var(--muted); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto;">
+              <Icon name="heroicons:chart-bar-20-solid" style="width: 32px; height: 32px; color: var(--text-secondary);" />
+            </div>
+            <h3 style="font-size: 1.25rem; font-weight: 600; color: var(--text); margin-bottom: 0.5rem;">
+              {{ tradesStore.trades.length === 0 ? 'Aucun trade enregistré' : 'Aucun trade ne correspond aux filtres' }}
+            </h3>
+            <p style="color: var(--text-secondary); margin-bottom: 2rem; line-height: 1.6;">
+              {{ tradesStore.trades.length === 0 ? 'Commencez à analyser vos trades pour voir votre historique ici.' : 'Essayez de modifier vos critères de filtrage.' }}
+            </p>
+            <NuxtLink v-if="tradesStore.trades.length === 0" to="/" 
+                      style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-600) 100%); color: white; padding: 0.875rem 1.75rem; border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); display: inline-block;"
+                      onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(59, 130, 246, 0.4)'"
+                      onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(59, 130, 246, 0.3)'">
+              Analyser un trade
+            </NuxtLink>
+          </div>
+
+          <!-- Liste des trades -->
+          <div v-else style="display: grid; gap: 1rem;">
+            <div v-for="trade in filteredTrades" 
+                 :key="trade.id" 
+                 style="background: var(--background); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; transition: all 0.2s ease;"
+                 onmouseover="this.style.borderColor='var(--primary-200)'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(0, 0, 0, 0.08)'"
+                 onmouseout="this.style.borderColor='var(--border)'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+              
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                <div>
+                  <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                    <span :style="`background: ${trade.type === 'buy' ? 'var(--success-100)' : 'var(--destructive-100)'}; color: ${trade.type === 'buy' ? 'var(--success-700)' : 'var(--destructive-700)'}; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase;`">
+                      {{ trade.type === 'buy' ? 'Achat' : 'Vente' }}
+                    </span>
+                    <span style="font-weight: 600; color: var(--text); font-size: 1.125rem;">{{ trade.asset }}</span>
+                  </div>
+                  <p style="color: var(--text-secondary); font-size: 0.875rem; margin: 0;">
+                    {{ new Date(trade.createdAt).toLocaleDateString('fr-FR') }}
+                  </p>
+                </div>
+                
+                <div style="text-align: right;">
+                  <div :style="`font-size: 1.125rem; font-weight: 700; color: ${(trade.exit - trade.entry) * (trade.type === 'buy' ? 1 : -1) > 0 ? 'var(--success-600)' : 'var(--destructive-600)'};`">
+                    {{ (trade.exit - trade.entry) * (trade.type === 'buy' ? 1 : -1) > 0 ? '+' : '' }}{{ ((trade.exit - trade.entry) / trade.entry * 100 * (trade.type === 'buy' ? 1 : -1)).toFixed(2) }}%
+                  </div>
+                  <div style="font-size: 0.875rem; color: var(--text-secondary);">
+                    {{ trade.entry }} → {{ trade.exit }}
+                  </div>
+                </div>
               </div>
-            </template>
-            <div>
-              <div>
-                <p>Prix d'entrée</p>
-                <p>{{ trade.entry }}</p>
+              
+              <div v-if="trade.strategy" style="margin-bottom: 0.75rem;">
+                <span style="background: var(--info-100); color: var(--info-700); padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 500;">
+                  {{ trade.strategy }}
+                </span>
               </div>
-              <div>
-                <p>Prix de sortie</p>
-                <p>{{ trade.exit }}</p>
+              
+              <div v-if="trade.comment" style="background: var(--muted); padding: 1rem; border-radius: 12px; margin-top: 0.75rem;">
+                <p style="color: var(--text); font-size: 0.875rem; margin: 0; line-height: 1.5;">{{ trade.comment }}</p>
+              </div>
+
+              <div v-if="trade.result" style="background: var(--background); border: 1px solid var(--border); padding: 1rem; border-radius: 12px; margin-top: 0.75rem;">
+                <h4 style="font-size: 0.875rem; font-weight: 600; color: var(--text); margin: 0 0 0.5rem 0;">Analyse IA :</h4>
+                <p style="color: var(--text); font-size: 0.875rem; margin: 0; line-height: 1.5; white-space: pre-wrap;">{{ trade.result }}</p>
               </div>
             </div>
-            <div>
-              <p>Analyse</p>
-              <p>{{ trade.result }}</p>
+          </div>
+        </div>
+
+        <!-- Modal de confirmation de suppression -->
+        <div v-if="showDeleteModal" style="position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 1rem;" @click="showDeleteModal = false">
+          <div style="background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; max-width: 400px; width: 100%; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);" @click.stop>
+            <h3 style="font-size: 1.25rem; font-weight: 600; color: var(--text); margin-bottom: 1rem;">Confirmer la suppression</h3>
+            <p style="color: var(--text-secondary); margin-bottom: 2rem; line-height: 1.6;">
+              Êtes-vous sûr de vouloir supprimer tout votre historique de trades ? Cette action est irréversible.
+            </p>
+            <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+              <button @click="showDeleteModal = false" 
+                      style="background: var(--muted); color: var(--text); padding: 0.75rem 1.5rem; border: 2px solid var(--border); border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;"
+                      onmouseover="this.style.borderColor='var(--primary-200)'"
+                      onmouseout="this.style.borderColor='var(--border)'">
+                Annuler
+              </button>
+              <button @click="confirmDeleteHistory" 
+                      style="background: var(--destructive); color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;"
+                      onmouseover="this.style.background='var(--destructive-600)'"
+                      onmouseout="this.style.background='var(--destructive)'">
+                Supprimer
+              </button>
             </div>
-            <template #footer>
-              <div>
-                <span>{{ new Date(trade.createdAt).toLocaleString() }}</span>
-                <span>ID: {{ trade.id ? trade.id.substring(0, 8) : 'N/A' }}</span>
-              </div>
-            </template>
-          </UCard>
+          </div>
         </div>
       </template>
     </main>
@@ -150,8 +301,6 @@
 import { ref, computed } from 'vue'
 import { useAuthStore } from '~/stores/useAuthStore'
 import { useTradesStore } from '~/stores/useTradesStore'
-
-definePageMeta({ middleware: 'auth' })
 
 const authStore = useAuthStore()
 const tradesStore = useTradesStore()
@@ -185,11 +334,13 @@ const filteredTrades = computed(() => {
     }
 
     // Filtre par résultat
-    if (filters.value.result === 'win' && !trade.result?.includes('✅')) {
-      return false
+    if (filters.value.result === 'win') {
+      const pnl = (trade.exit - trade.entry) / trade.entry * (trade.type === 'buy' ? 1 : -1)
+      if (pnl <= 0) return false
     }
-    if (filters.value.result === 'loss' && !trade.result?.includes('❌')) {
-      return false
+    if (filters.value.result === 'loss') {
+      const pnl = (trade.exit - trade.entry) / trade.entry * (trade.type === 'buy' ? 1 : -1)
+      if (pnl >= 0) return false
     }
 
     // Filtre par actif
@@ -214,17 +365,22 @@ const filteredTrades = computed(() => {
 // Exporter les trades
 const exportTrades = () => {
   // Créer un CSV des trades
-  const headers = ['Type', 'Actif', 'Entrée', 'Sortie', 'Résultat', 'Date']
+  const headers = ['Type', 'Actif', 'Entrée', 'Sortie', 'Résultat (%)', 'Stratégie', 'Commentaire', 'Date']
   const csvContent = [
     headers.join(','),
-    ...filteredTrades.value.map(trade => [
-      trade.type,
-      trade.asset,
-      trade.entry,
-      trade.exit,
-      trade.result?.includes('✅') ? 'Gagnant' : 'Perdant',
-      new Date(trade.createdAt).toLocaleString()
-    ].join(','))
+    ...filteredTrades.value.map(trade => {
+      const pnl = ((trade.exit - trade.entry) / trade.entry * 100 * (trade.type === 'buy' ? 1 : -1)).toFixed(2)
+      return [
+        trade.type,
+        trade.asset,
+        trade.entry,
+        trade.exit,
+        pnl,
+        trade.strategy || '',
+        trade.comment?.replace(/,/g, ';') || '',
+        new Date(trade.createdAt).toLocaleString()
+      ].map(field => `"${field}"`).join(',')
+    })
   ].join('\n')
 
   // Créer un blob et un lien de téléchargement
@@ -251,30 +407,39 @@ const confirmDeleteHistory = () => {
   showDeleteModal.value = false
 }
 
+// Référence pour l'input file
+const csvInput = ref<HTMLInputElement>()
+
 // Importer un CSV
 const handleCsvImport = (event: Event) => {
   const input = event.target as HTMLInputElement
   if (!input.files || input.files.length === 0) return
+  
   const file = input.files[0]
   const reader = new FileReader()
+  
   reader.onload = (e) => {
     const text = e.target?.result as string
     if (!text) return
+    
     try {
       // Parsing CSV simple (séparateur virgule, première ligne = header)
       const lines = text.split(/\r?\n/).filter(Boolean)
-      const headers = lines[0].split(',').map(h => h.trim().toLowerCase())
+      const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/"/g, ''))
       const required = ['type', 'asset', 'entry', 'exit']
+      
       if (!required.every(r => headers.includes(r))) {
         alert('Le CSV doit contenir les colonnes : type, asset, entry, exit')
         return
       }
+      
       const trades = lines.slice(1).map(line => {
-        const values = line.split(',')
+        const values = line.split(',').map(v => v.trim().replace(/"/g, ''))
         const obj: any = {}
         headers.forEach((h, i) => { obj[h] = values[i] })
         return obj
       })
+      
       let count = 0
       for (const t of trades) {
         if (t.type && t.asset && t.entry && t.exit) {
@@ -285,9 +450,7 @@ const handleCsvImport = (event: Event) => {
             exit: parseFloat(t.exit),
             strategy: t.strategy || '',
             comment: t.comment || '',
-            result: '',
-            // Ajout d'un id unique si jamais la méthode addTrade ne le fait pas (sécurité)
-            id: `imported-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+            result: ''
           })
           count++
         }
@@ -297,6 +460,7 @@ const handleCsvImport = (event: Event) => {
       alert('Erreur lors de l\'import du CSV')
     }
   }
+  
   reader.readAsText(file)
 }
 
@@ -328,14 +492,3 @@ const syncFromCloud = async () => {
   }
 }
 </script>
-
-<!-- <style scoped>
-@keyframes scale-in {
-  0% { opacity: 0; transform: scale(0.9); }
-  100% { opacity: 1; transform: scale(1); }
-}
-.animate-scale-in {
-  animation: scale-in 0.25s cubic-bezier(0.4,0,0.2,1);
-}
-</style> -->
-

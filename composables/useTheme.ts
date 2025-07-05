@@ -37,8 +37,8 @@ export const useTheme = () => {
   watch(theme, (newTheme) => {
     localStorage.setItem('theme', newTheme)
     updateHtmlTheme()
-    // Forcer un repaint pour Tailwind (utile si hot reload ou hydration)
-    document.body.style.transition = 'background 0.2s, color 0.2s';
+    // Forcer un repaint pour Tailwind avec la même durée que le CSS global
+    document.body.style.transition = 'background-color 0.3s ease, color 0.3s ease';
   })
 
   const toggleTheme = () => {

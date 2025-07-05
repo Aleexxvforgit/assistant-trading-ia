@@ -2,17 +2,112 @@
 @import "tailwindcss/utilities";
 
 :root {
-  --background: #f9fafb;
-  --text: #111827;
+  /* Light theme - Inspiré de Colorffy */
+  --background: #ffffff;
+  --surface: #f8fafc;
+  --card: #ffffff;
+  --text: #0f172a;
+  --text-secondary: #64748b;
+  --border: #e2e8f0;
+  --primary: #3b82f6;
+  --primary-hover: #2563eb;
+  --primary-600: #2563eb;
+  --accent: #10b981;
+  --accent-hover: #059669;
+  --muted: #f1f5f9;
+  
+  /* Couleurs de système */
+  --warning-50: #fffbeb;
+  --warning-100: #fef3c7;
+  --warning-200: #fcd34d;
+  --warning-700: #a16207;
+  --destructive-50: #fef2f2;
+  --destructive-200: #fecaca;
+  --destructive-700: #dc2626;
+  --info-50: #eff6ff;
+  --info-200: #bfdbfe;
+  --info-700: #1d4ed8;
+  --primary-50: #eff6ff;
 }
+
 .dark {
-  --background: #0f1117;
-  --text: #f1f1f1;
+  /* Dark theme - Moderne et élégant */
+  --background: #0f172a;
+  --surface: #1e293b;
+  --card: #334155;
+  --text: #f8fafc;
+  --text-secondary: #94a3b8;
+  --border: #475569;
+  --primary: #60a5fa;
+  --primary-hover: #3b82f6;
+  --primary-600: #2563eb;
+  --accent: #34d399;
+  --accent-hover: #10b981;
+  --muted: #1e293b;
+  
+  /* Couleurs de système pour dark mode */
+  --warning-50: #451a03;
+  --warning-100: #78350f;
+  --warning-200: #a16207;
+  --warning-700: #fbbf24;
+  --destructive-50: #450a0a;
+  --destructive-200: #dc2626;
+  --destructive-700: #fca5a5;
+  --info-50: #0c1e3e;
+  --info-200: #1d4ed8;
+  --info-700: #93c5fd;
+  --primary-50: #0c1e3e;
+  --muted: #1e293b;
 }
 
 html, body {
   background: var(--background);
   color: var(--text);
-  transition: background 0.3s, color 0.3s;
+  transition: background 0.3s ease, color 0.3s ease;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Classes utilitaires pour les composants */
+.surface {
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.btn-secondary:hover {
+  background: var(--muted);
 }
 
