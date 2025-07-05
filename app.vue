@@ -6,7 +6,7 @@
 
 <script setup>
 import { onMounted } from 'vue'
-import { useHead } from '@unhead/vue'
+import { useHead } from '#imports'
 import { useTheme } from '@/composables/useTheme'
 import { useAuthStore } from '~/stores/useAuthStore'
 import { useTradesStore } from '~/stores/useTradesStore'

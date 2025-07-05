@@ -11,14 +11,17 @@
       <NuxtLink v-if="authStore.isAuthenticated" to="/historique">Historique</NuxtLink>
       <NuxtLink v-if="authStore.isAuthenticated" to="/dashboard">Dashboard</NuxtLink>
       <NuxtLink v-if="!authStore.isAuthenticated" to="/auth">Connexion</NuxtLink>
-      <button @click="toggleTheme">{{ theme === 'dark' ? '☀︎' : '⏾' }}</button>
+      <button @click="toggleTheme" aria-label="Changer de thème" style="background:transparent;border:none;cursor:pointer;padding:4px;display:inline-flex;align-items:center;justify-content:center;font-size:1.5rem;transition:color 0.2s;" :class="theme === 'dark' ? 'text-yellow-400 hover:text-yellow-300' : 'text-gray-700 hover:text-blue-600'">
+        <Icon name="heroicons:sun-20-solid" v-if="theme === 'dark'" aria-hidden="true" />
+        <Icon name="heroicons:moon-20-solid" v-else aria-hidden="true" />
+      </button>
       <div v-if="authStore.isAuthenticated">
         <div @click="toggleUserMenu" style="cursor:pointer;display:inline-flex;align-items:center;gap:8px;">
           <img src="https://api.dicebear.com/7.x/bottts/svg?seed=user" alt="avatar" width="32" height="32" />
           <UBadge v-if="authStore.isOfflineMode">Hors ligne</UBadge>
           <span>{{ authStore.user?.email }}</span>
         </div>
-        <div v-if="userMenuOpen" style="position:absolute;background:#fff;border:1px solid #ccc;padding:8px;z-index:100;min-width:150px;">
+        <div v-if="userMenuOpen" style="position:absolute;background:var(--background);color:var(--text);border:1px solid #ccc;padding:8px;z-index:100;min-width:150px;">
           <p>{{ authStore.user?.email }}</p>
           <p>{{ authStore.isOfflineMode ? 'Mode hors ligne' : 'Connecté' }}</p>
           <NuxtLink to="/profil" @click="userMenuOpen = false">Profil</NuxtLink>
@@ -40,7 +43,13 @@
         <li v-if="authStore.isAuthenticated"><NuxtLink to="/historique" @click="menuOpen = false">Historique</NuxtLink></li>
         <li v-if="authStore.isAuthenticated"><NuxtLink to="/dashboard" @click="menuOpen = false">Dashboard</NuxtLink></li>
         <li v-if="!authStore.isAuthenticated"><NuxtLink to="/auth" @click="menuOpen = false">Connexion</NuxtLink></li>
-        <li><button @click="toggleTheme">{{ theme === 'dark' ? '☀️' : '🌙' }} {{ theme === 'dark' ? 'Thème Clair' : 'Thème Sombre' }}</button></li>
+        <li>
+          <button @click="toggleTheme" aria-label="Changer de thème" style="background:transparent;border:none;cursor:pointer;padding:4px;display:inline-flex;align-items:center;justify-content:center;font-size:1.5rem;transition:color 0.2s;" :class="theme === 'dark' ? 'text-yellow-400 hover:text-yellow-300' : 'text-gray-700 hover:text-blue-600'">
+            <Icon name="heroicons:sun-20-solid" v-if="theme === 'dark'" aria-hidden="true" />
+            <Icon name="heroicons:moon-20-solid" v-else aria-hidden="true" />
+            {{ theme === 'dark' ? 'Thème Clair' : 'Thème Sombre' }}
+          </button>
+        </li>
         <li v-if="authStore.isAuthenticated">
           <div>
             <img src="https://api.dicebear.com/7.x/bottts/svg?seed=user" alt="avatar" width="24" height="24" />

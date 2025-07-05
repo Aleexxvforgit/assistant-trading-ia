@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="min-h-screen transition-colors duration-300" style="background:var(--background);color:var(--text)">
     <Header />
 
     <div>

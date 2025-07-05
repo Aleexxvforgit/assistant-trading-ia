@@ -15,7 +15,9 @@ export const useTheme = () => {
   }
 
   const updateHtmlTheme = () => {
-    document.documentElement.classList.toggle('dark', theme.value === 'dark')
+    if (typeof window !== 'undefined') {
+      document.documentElement.classList.toggle('dark', theme.value === 'dark')
+    }
   }
 
   // Initialiser le thème en fonction de la classe HTML déjà présente (script head)
@@ -35,6 +37,8 @@ export const useTheme = () => {
   watch(theme, (newTheme) => {
     localStorage.setItem('theme', newTheme)
     updateHtmlTheme()
+    // Forcer un repaint pour Tailwind (utile si hot reload ou hydration)
+    document.body.style.transition = 'background 0.2s, color 0.2s';
   })
 
   const toggleTheme = () => {

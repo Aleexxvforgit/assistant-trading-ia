@@ -18,12 +18,12 @@
           </template>
           <div>
             <form v-if="!showRegister" @submit.prevent="login">
-              <UFormGroup label="Email" name="email">
+              <UFormField label="Email" name="email">
                 <UInput v-model="email" type="email" placeholder="votre@email.com" autocomplete="email" required />
-              </UFormGroup>
-              <UFormGroup label="Mot de passe" name="password">
+              </UFormField>
+              <UFormField label="Mot de passe" name="password">
                 <UInput v-model="password" type="password" placeholder="Votre mot de passe" autocomplete="current-password" required />
-              </UFormGroup>
+              </UFormField>
               <div>
                 <UButton type="submit" color="white" :loading="isLoading">Se connecter</UButton>
                 <UButton type="button" color="white" @click="loginWithGoogle">
@@ -40,12 +40,12 @@
               <p v-if="error">{{ error }}</p>
             </form>
             <form v-else @submit.prevent="register">
-              <UFormGroup label="Email" name="registerEmail">
+              <UFormField label="Email" name="registerEmail">
                 <UInput v-model="registerEmail" type="email" placeholder="votre@email.com" autocomplete="email" required />
-              </UFormGroup>
-              <UFormGroup label="Mot de passe" name="registerPassword">
+              </UFormField>
+              <UFormField label="Mot de passe" name="registerPassword">
                 <UInput v-model="registerPassword" type="password" placeholder="Votre mot de passe" autocomplete="new-password" required />
-              </UFormGroup>
+              </UFormField>
               <UButton type="submit" color="primary" :loading="isLoading">Créer un compte</UButton>
               <UButton type="button" color="secondary" @click="registerWithGoogle">
                 <span class="i-logos-google-icon"></span> S'inscrire avec Google

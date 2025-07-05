@@ -9,9 +9,7 @@ export default defineNuxtConfig({
   ],
   css: ['~/assets/css/tailwind.css'],
   nitro: {
-    compatibilityDate: {
-      date: '2024-04-03'
-    },
+    compatibilityDate: '2025-07-05',
   },
   typescript: {
     strict: true,
@@ -35,5 +33,11 @@ export default defineNuxtConfig({
   app: {
     // Pour une transition plus fluide entre les pages
     pageTransition: { name: 'page', mode: 'out-in' }
-  }
-})
+  },
+  postcss: {
+    plugins: {
+      '@tailwindcss/postcss': {},
+      autoprefixer: {},
+    },
+  },
+});
