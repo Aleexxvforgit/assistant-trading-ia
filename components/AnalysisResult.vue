@@ -1,8 +1,5 @@
 <template>
-  <div
-    v-if="content"
-    class="bg-gray-800 p-4 rounded shadow mt-6 whitespace-pre-wrap text-sm"
-  >
+  <div v-if="content">
     {{ content }}
   </div>
 </template>

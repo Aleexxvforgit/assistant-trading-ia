@@ -1,16 +1,12 @@
 <template>
-  <div class="min-h-screen flex flex-col bg-white text-black dark:bg-gray-900 dark:text-white transition-colors duration-300">
+  <div>
     <Header />
 
-    <div class="flex-grow">
+    <div>
       <NuxtPage />
     </div>
+    <Footer />
 
-    <footer class="py-4 text-center text-sm text-gray-500 dark:text-gray-400 border-t border-gray-200 dark:border-gray-800">
-      <div class="container mx-auto px-4">
-        <p>Assistant IA de Trading &copy; {{ new Date().getFullYear() }}</p>
-      </div>
-    </footer>
   </div>
 </template>
 
