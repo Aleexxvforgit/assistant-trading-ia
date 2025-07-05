@@ -10,10 +10,10 @@
             Êtes-vous certain de vouloir continuer&nbsp;?
           </p>
           <div class="flex flex-col sm:flex-row justify-center gap-4 mt-2">
-            <UButton color="white" block class="py-3 text-lg font-semibold rounded-xl shadow-sm flex items-center justify-center gap-2 bg-gray-100/60 hover:bg-gray-200/80 text-black dark:bg-gray-800/60 dark:hover:bg-gray-800/80 dark:text-white transition" @click="showDeleteModal = false">
+            <UButton color="white" block class="py-3 text-lg font-semibold rounded-xl shadow-sm flex items-center justify-center gap-2 bg-gray-100/60 hover:bg-gray-200/80 text-black border border-gray-200 dark:bg-gray-800/60 dark:hover:bg-gray-800/80 dark:text-white dark:border-gray-700 transition" @click="showDeleteModal = false">
               Annuler
             </UButton>
-            <UButton color="white" block class="py-3 text-lg font-semibold rounded-xl shadow-sm flex items-center justify-center gap-2 bg-red-100/60 hover:bg-red-200/80 text-red-700 dark:bg-red-800/60 dark:hover:bg-red-800/80 dark:text-white transition" @click="confirmDeleteHistory">
+            <UButton color="white" block class="py-3 text-lg font-semibold rounded-xl shadow-sm flex items-center justify-center gap-2 bg-red-100/60 hover:bg-red-200/80 text-red-700 border border-red-200 dark:bg-red-800/60 dark:hover:bg-red-800/80 dark:text-white dark:border-red-700 transition" @click="confirmDeleteHistory">
               Oui, tout effacer
             </UButton>
           </div>
@@ -25,21 +25,22 @@
         <h1 class="text-3xl font-bold">Historique des trades</h1>
         <UBadge v-if="authStore.isOfflineMode" color="orange">Mode Hors Ligne</UBadge>
       </div>
-      <UCard v-if="!authStore.isAuthenticated" class="mb-8">
-        <template #header>
-          <h2 class="text-xl font-semibold">Connexion requise</h2>
-        </template>
-        <p class="mb-4">Veuillez vous connecter pour accéder à l'historique.</p>
+      <div v-if="!authStore.isAuthenticated" class="flex flex-col items-center justify-center py-16">
+        <UIcon name="i-heroicons-lock-closed" class="text-4xl text-blue-500 dark:text-blue-400 mb-4" />
+        <h2 class="text-2xl font-bold text-center mb-2">Connexion requise</h2>
+        <p class="mb-6 text-base text-gray-600 dark:text-gray-300 text-center max-w-xl">
+          Vous devez être connecté pour accéder à cette page et consulter votre historique de trades.
+        </p>
         <UButton
           to="/auth"
-          color="white"
+          color="primary"
           block
-          class="py-2 text-base font-semibold rounded-xl shadow-sm flex items-center justify-center gap-2 bg-gray-100/60 hover:bg-gray-200/80 text-black dark:bg-gray-800/60 dark:hover:bg-gray-800/80 dark:text-white transition"
+          class="w-full max-w-xs py-2 text-base font-semibold rounded-xl shadow-sm flex items-center justify-center gap-2 bg-blue-100/60 hover:bg-blue-200/80 text-blue-700 border border-blue-200 dark:bg-blue-800/60 dark:hover:bg-blue-800/80 dark:text-white dark:border-blue-700 transition"
         >
-          <span class="i-heroicons-lock-closed"></span>
+          <span class="i-heroicons-arrow-right-on-rectangle"></span>
           Se connecter
         </UButton>
-      </UCard>
+      </div>
       <template v-else>
         <!-- Grille avec statistiques à gauche et filtres à droite -->
         <div v-if="tradesStore.trades.length > 0" class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
@@ -59,7 +60,7 @@
                     <select
                       id="filter-type"
                       v-model="filters.type"
-                      class="w-full bg-white dark:bg-gray-800 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-base text-black dark:text-white"
+                      class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-base text-black dark:text-white"
                     >
                       <option value="all" disabled selected hidden>Type de trade</option>
                       <option value="all">Tous</option>
@@ -72,7 +73,7 @@
                     <select
                       id="filter-result"
                       v-model="filters.result"
-                      class="w-full bg-white dark:bg-gray-800 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-base text-black dark:text-white"
+                      class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-base text-black dark:text-white"
                     >
                       <option value="all" disabled selected hidden>Résultat</option>
                       <option value="all">Tous</option>
@@ -86,7 +87,7 @@
                       id="filter-asset"
                       v-model="filters.asset"
                       placeholder="Filtrer par actif..."
-                      class="w-full bg-white dark:bg-gray-800 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-base placeholder-gray-400 dark:placeholder-gray-500"
+                      class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-base placeholder-gray-400 dark:placeholder-gray-500"
                     />
                   </div>
                   <div>
@@ -94,7 +95,7 @@
                     <select
                       id="filter-strategy"
                       v-model="filters.strategy"
-                      class="w-full bg-white dark:bg-gray-800 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-base text-black dark:text-white"
+                      class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-base text-black dark:text-white"
                     >
                       <option value="all" disabled selected hidden>Stratégie</option>
                       <option value="all">Toutes</option>
@@ -111,7 +112,7 @@
                     @click="resetFilters"
                     color="white"
                     block
-                    class="py-2 text-base font-semibold rounded-xl shadow-sm flex items-center justify-center gap-2 bg-gray-100/60 hover:bg-gray-200/80 text-black dark:bg-gray-800/60 dark:hover:bg-gray-800/80 dark:text-white transition"
+                    class="py-2 text-base font-semibold rounded-xl shadow-sm flex items-center justify-center gap-2 bg-gray-100/60 hover:bg-gray-200/80 text-black border border-gray-200 dark:bg-gray-800/60 dark:hover:bg-gray-800/80 dark:text-white dark:border-gray-700 transition"
                   >
                     Réinitialiser
                   </UButton>
@@ -119,24 +120,24 @@
                     color="white"
                     @click="exportTrades"
                     block
-                    class="py-2 text-base font-semibold rounded-xl shadow-sm flex items-center justify-center gap-2 bg-gray-100/60 hover:bg-gray-200/80 text-black dark:bg-gray-800/60 dark:hover:bg-gray-800/80 dark:text-white transition"
+                    class="py-2 text-base font-semibold rounded-xl shadow-sm flex items-center justify-center gap-2 bg-gray-100/60 hover:bg-gray-200/80 text-black border border-gray-200 dark:bg-gray-800/60 dark:hover:bg-gray-800/80 dark:text-white dark:border-gray-700 transition"
                   >
                     Exporter
                   </UButton>
-                  <UButton color="white" @click="() => $refs.csvInput.click()" block class="py-2 text-base font-semibold rounded-xl shadow-sm flex items-center justify-center gap-2 bg-gray-100/60 hover:bg-gray-200/80 text-black dark:bg-gray-800/60 dark:hover:bg-gray-800/80 dark:text-white transition">
+                  <UButton color="white" @click="() => $refs.csvInput.click()" block class="py-2 text-base font-semibold rounded-xl shadow-sm flex items-center justify-center gap-2 bg-gray-100/60 hover:bg-gray-200/80 text-black border border-gray-200 dark:bg-gray-800/60 dark:hover:bg-gray-800/80 dark:text-white dark:border-gray-700 transition">
                     <span class="i-heroicons-arrow-up-tray"></span>
                     Importer un CSV
                   </UButton>
                   <input ref="csvInput" type="file" accept=".csv" class="hidden" @change="handleCsvImport" />
-                  <UButton color="white" variant="soft" @click="resetHistory" block class="py-2 text-base font-semibold rounded-xl shadow-sm flex items-center justify-center gap-2 bg-red-100/60 hover:bg-red-200/80 text-red-700 dark:bg-red-800/60 dark:hover:bg-red-800/80 dark:text-white transition">
+                  <UButton color="white" variant="soft" @click="resetHistory" block class="py-2 text-base font-semibold rounded-xl shadow-sm flex items-center justify-center gap-2 bg-red-100/60 hover:bg-red-200/80 text-red-700 border border-red-200 dark:bg-red-800/60 dark:hover:bg-red-800/80 dark:text-white dark:border-red-700 transition">
                     Effacer l'historique
                   </UButton>
-                  <UButton color="white" @click="syncCloud" block class="py-2 text-base font-semibold rounded-xl shadow-sm flex items-center justify-center gap-2 bg-blue-100/60 hover:bg-blue-200/80 text-blue-700 dark:bg-blue-800/60 dark:hover:bg-blue-800/80 dark:text-white transition">
+                  <UButton color="white" @click="syncCloud" block class="py-2 text-base font-semibold rounded-xl shadow-sm flex items-center justify-center gap-2 bg-blue-100/60 hover:bg-blue-200/80 text-blue-700 border border-blue-200 dark:bg-blue-800/60 dark:hover:bg-blue-800/80 dark:text-white dark:border-blue-700 transition">
                     <span class="i-heroicons-cloud-arrow-up"></span>
                     Synchroniser avec le cloud
                   </UButton>
                   <div v-if="tradesStore.trades.length === 0" class="mt-4">
-                    <UButton color="white" @click="syncFromCloud" block class="py-2 text-base font-semibold rounded-xl shadow-sm flex items-center justify-center gap-2 bg-blue-100/60 hover:bg-blue-200/80 text-blue-700 dark:bg-blue-800/60 dark:hover:bg-blue-800/80 dark:text-white transition">
+                    <UButton color="white" @click="syncFromCloud" block class="py-2 text-base font-semibold rounded-xl shadow-sm flex items-center justify-center gap-2 bg-blue-100/60 hover:bg-blue-200/80 text-blue-700 border border-blue-200 dark:bg-blue-800/60 dark:hover:bg-blue-800/80 dark:text-white dark:border-blue-700 transition">
                       <span class="i-heroicons-cloud-arrow-down"></span>
                       Récupérer depuis le cloud
                     </UButton>
@@ -156,8 +157,13 @@
               Vous n'avez pas encore effectué d'analyses de trades.
             </p>
             <UButton to="/" color="primary">Analyser un trade</UButton>
-            <div class="mt-6 flex justify-center">
-              <UButton color="white" @click="syncFromCloud" block class="w-full max-w-xs py-2 text-base font-semibold rounded-xl shadow-sm flex items-center justify-center gap-2 bg-blue-100/60 hover:bg-blue-200/80 text-blue-700 dark:bg-blue-800/60 dark:hover:bg-blue-800/80 dark:text-white transition">
+            <div class="mt-6 flex flex-col items-center gap-3">
+              <UButton color="white" @click="() => $refs.csvInput.click()" block class="w-full max-w-xs py-2 text-base font-semibold rounded-xl shadow-sm flex items-center justify-center gap-2 bg-gray-100/60 hover:bg-gray-200/80 text-black border border-gray-200 dark:bg-gray-800/60 dark:hover:bg-gray-800/80 dark:text-white dark:border-gray-700 transition">
+                <span class="i-heroicons-arrow-up-tray"></span>
+                Importer un CSV
+              </UButton>
+              <input ref="csvInput" type="file" accept=".csv" class="hidden" @change="handleCsvImport" />
+              <UButton color="white" @click="syncFromCloud" block class="w-full max-w-xs py-2 text-base font-semibold rounded-xl shadow-sm flex items-center justify-center gap-2 bg-blue-100/60 hover:bg-blue-200/80 text-blue-700 border border-blue-200 dark:bg-blue-800/60 dark:hover:bg-blue-800/80 dark:text-white dark:border-blue-700 transition">
                 <span class="i-heroicons-cloud-arrow-down"></span>
                 Récupérer depuis le cloud
               </UButton>
@@ -207,7 +213,7 @@
             <template #footer>
               <div class="flex justify-between items-center text-sm text-gray-500">
                 <span>{{ new Date(trade.createdAt).toLocaleString() }}</span>
-                <span>ID: {{ trade.id.substring(0, 8) }}</span>
+                <span>ID: {{ trade.id ? trade.id.substring(0, 8) : 'N/A' }}</span>
               </div>
             </template>
           </UCard>
@@ -356,7 +362,9 @@ const handleCsvImport = (event: Event) => {
             exit: parseFloat(t.exit),
             strategy: t.strategy || '',
             comment: t.comment || '',
-            result: ''
+            result: '',
+            // Ajout d'un id unique si jamais la méthode addTrade ne le fait pas (sécurité)
+            id: `imported-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
           })
           count++
         }

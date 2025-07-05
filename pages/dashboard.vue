@@ -36,9 +36,16 @@
             </div>
           </div>
         </div>
-        <div v-else class="text-center py-6">
-          <p class="mb-4">Vous devez être connecté pour accéder à cette page</p>
-          <UButton to="/auth" color="primary">Se connecter</UButton>
+        <div v-else class="flex flex-col items-center justify-center py-12">
+          <UIcon name="i-heroicons-lock-closed" class="text-4xl text-blue-500 dark:text-blue-400 mb-4" />
+          <h2 class="text-2xl font-bold text-center mb-2">Connexion requise</h2>
+          <p class="mb-6 text-base text-gray-600 dark:text-gray-300 text-center max-w-xl">
+            Vous devez être connecté pour accéder à cette page et consulter votre dashboard analytique.
+          </p>
+          <UButton to="/auth" color="primary" block class="w-full max-w-xs py-2 text-base font-semibold rounded-xl shadow-sm flex items-center justify-center gap-2 bg-blue-100/60 hover:bg-blue-200/80 text-blue-700 border border-blue-200 dark:bg-blue-800/60 dark:hover:bg-blue-800/80 dark:text-white dark:border-blue-700 transition">
+            <span class="i-heroicons-arrow-right-on-rectangle"></span>
+            Se connecter
+          </UButton>
         </div>
       </UCard>
     </main>

@@ -15,6 +15,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   const isAuthenticated = computed(() => !!user.value)
   const isOfflineMode = ref(false)
+  const isAuthReady = ref(false)
 
   // Fonction pour simuler une connexion en mode hors ligne
   function loginOffline(email: string) {
@@ -26,11 +27,12 @@ export const useAuthStore = defineStore('auth', () => {
     }
     isOfflineMode.value = true
     localStorage.setItem('offlineUser', JSON.stringify(user.value))
+    isAuthReady.value = true
   }
 
   // Fonction pour se déconnecter (Firebase ou offline)
   async function logout() {
-    const { $auth } = useNuxtApp()
+    const { $auth, $router } = useNuxtApp()
     if (!isOfflineMode.value && $auth) {
       try {
         await signOut($auth)
@@ -40,7 +42,12 @@ export const useAuthStore = defineStore('auth', () => {
     }
     user.value = null
     isOfflineMode.value = false
+    isAuthReady.value = false
     localStorage.removeItem('offlineUser')
+    // Redirige vers la page d'accueil après déconnexion
+    if ($router) {
+      $router.push('/')
+    }
   }
 
   // Initialiser l'état à partir du localStorage (pour le mode hors ligne)
@@ -50,6 +57,7 @@ export const useAuthStore = defineStore('auth', () => {
       user.value = JSON.parse(storedUser)
       isOfflineMode.value = true
     }
+    isAuthReady.value = true
   }
 
   // Observer l'état Firebase Auth
@@ -69,7 +77,10 @@ export const useAuthStore = defineStore('auth', () => {
         } else if (!isOfflineMode.value) {
           user.value = null
         }
+        isAuthReady.value = true
       })
+    } else {
+      isAuthReady.value = true
     }
   }
 
@@ -77,6 +88,7 @@ export const useAuthStore = defineStore('auth', () => {
     user,
     isAuthenticated,
     isOfflineMode,
+    isAuthReady,
     loginOffline,
     logout,
     initFromLocalStorage,

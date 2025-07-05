@@ -29,17 +29,9 @@
       <NuxtLink
         v-if="authStore.isAuthenticated"
         to="/dashboard"
-        class="bg-white text-black dark:bg-gray-900 dark:text-white transition-colors duration-300 font-semibold text-blue-600 dark:text-blue-400"
-      >
-        Dashboard
-      </NuxtLink>
-
-      <NuxtLink
-        v-if="authStore.isAuthenticated"
-        to="/profil"
         class="bg-white text-black dark:bg-gray-900 dark:text-white transition-colors duration-300"
       >
-        Profil
+        Dashboard
       </NuxtLink>
 
       <!-- Lien d'authentification conditionnel -->
@@ -68,7 +60,7 @@
           <img
             src="https://api.dicebear.com/7.x/bottts/svg?seed=user"
             alt="avatar"
-            class="w-8 h-8 rounded-full cursor-pointer"
+            class="w-8 h-8 rounded-full cursor-pointer border border-gray-400 dark:border-gray-600"
           />
           <UBadge v-if="authStore.isOfflineMode" color="orange" size="xs">Hors ligne</UBadge>
           <span class="text-sm hidden lg:inline">{{ authStore.user?.email }}</span>
@@ -77,10 +69,17 @@
           v-if="userMenuOpen"
           class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 shadow-lg rounded-xl z-50 overflow-hidden"
         >
-          <div class="px-4 py-2">
+          <div class="px-4 py-2 border-b border-gray-100 dark:border-gray-700">
             <p class="text-sm font-medium">{{ authStore.user?.email }}</p>
             <p class="text-xs text-gray-500">{{ authStore.isOfflineMode ? 'Mode hors ligne' : 'Connecté' }}</p>
           </div>
+          <NuxtLink
+            to="/profil"
+            class="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 text-blue-600 dark:text-blue-400"
+            @click="userMenuOpen = false"
+          >
+            Profil
+          </NuxtLink>
           <button
             @click="logout"
             class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 text-red-600 dark:text-red-400"
@@ -136,22 +135,11 @@
         <li v-if="authStore.isAuthenticated">
           <NuxtLink
             to="/dashboard"
-            class="block py-2 font-semibold text-blue-600 dark:text-blue-400"
-            active-class="text-[#00FFC3] font-semibold"
-            @click="menuOpen = false"
-          >
-            Dashboard
-          </NuxtLink>
-        </li>
-
-        <li v-if="authStore.isAuthenticated">
-          <NuxtLink
-            to="/profil"
             class="block py-2"
             active-class="text-[#00FFC3] font-semibold"
             @click="menuOpen = false"
           >
-            Profil
+            Dashboard
           </NuxtLink>
         </li>
 
@@ -177,12 +165,12 @@
         </li>
 
         <li v-if="authStore.isAuthenticated">
-          <div class="pt-2 pb-3">
+          <div class="pt-2 pb-3 border-t border-gray-100 dark:border-gray-800">
             <div class="flex items-center mb-2">
               <img
                 src="https://api.dicebear.com/7.x/bottts/svg?seed=user"
                 alt="avatar"
-                class="w-6 h-6 rounded-full mr-2"
+                class="w-6 h-6 rounded-full mr-2 border border-gray-400 dark:border-gray-600"
               />
               <span class="text-sm">{{ authStore.user?.email }}</span>
               <UBadge v-if="authStore.isOfflineMode" color="orange" size="xs" class="ml-2">Hors ligne</UBadge>
@@ -234,7 +222,7 @@ const logout = () => {
   authStore.logout()
   userMenuOpen.value = false
   menuOpen.value = false
-  router.push('/auth')
+  // Ne pas rediriger ici, la logique est dans le store
 }
 </script>
 

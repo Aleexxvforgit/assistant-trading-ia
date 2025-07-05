@@ -28,7 +28,18 @@ export const useTradesStore = defineStore('trades', () => {
       try {
         const parsed = JSON.parse(storedTrades)
         if (Array.isArray(parsed)) {
+          // Correction automatique des trades sans id
+          let changed = false
+          for (const trade of parsed) {
+            if (!trade.id) {
+              trade.id = `legacy-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+              changed = true
+            }
+          }
           trades.value = parsed
+          if (changed) {
+            localStorage.setItem('tradeHistory', JSON.stringify(trades.value))
+          }
         } else {
           throw new Error('Format invalide')
         }
