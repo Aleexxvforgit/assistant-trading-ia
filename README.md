@@ -75,4 +75,4 @@ bun run preview
 Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
 
 # Changement mineur pour déclencher un déploiement Vercel
-# (Ce commentaire peut être supprimé ensuite)
+
